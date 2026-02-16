@@ -65,9 +65,16 @@ html, body {
   pointer-events: none;
 }
 #player img {
+  position: absolute;
+  top: 0; left: 0;
   width: 100%;
   height: 100%;
   object-fit: contain;
+  -webkit-mask-image: radial-gradient(ellipse 80% 80% at center, black 50%, transparent 80%);
+  mask-image: radial-gradient(ellipse 80% 80% at center, black 50%, transparent 80%);
+}
+#player-img-rest {
+  opacity: 0;
 }
 
 .game-asset {
@@ -265,6 +272,7 @@ html, body {
 
   <div id="player">
     <img src="Assignment II_Star.svg" alt="Star" id="player-img">
+    <img src="Assignment II_Star_REST.svg" alt="Star Rest" id="player-img-rest">
   </div>
 
   <div id="text-bubble">
@@ -487,6 +495,7 @@ function cacheDom() {
   dom.starfield = document.getElementById('starfield');
   dom.player = document.getElementById('player');
   dom.playerImg = document.getElementById('player-img');
+  dom.playerImgRest = document.getElementById('player-img-rest');
   dom.textBubble = document.getElementById('text-bubble');
   dom.textBubbleContent = document.getElementById('text-bubble-content');
   dom.ephemeralText = document.getElementById('ephemeral-text');
@@ -623,7 +632,7 @@ function updatePlayer() {
     state.playerX = Math.min(vw - halfW, state.playerX + speed);
   }
   if (state.keys['ArrowUp']) {
-    state.playerY = Math.max(0, state.playerY - speed * 0.7);
+    state.playerY = Math.max(0, state.playerY - speed);
   }
   if (state.keys['ArrowDown']) {
     state.playerY += speed;
@@ -794,14 +803,12 @@ function startEndgameSequence() {
     dom.ephemeralText.classList.remove('visible');
   }, 10500);
 
-  // Step 5: Star crossfades to REST variant
+  // Step 5: Star crossfades to REST variant (both layers simultaneously)
   schedule(function() {
-    dom.playerImg.style.transition = 'opacity 0.8s ease';
+    dom.playerImg.style.transition = 'opacity 1.5s ease';
+    dom.playerImgRest.style.transition = 'opacity 1.5s ease';
     dom.playerImg.style.opacity = '0';
-    schedule(function() {
-      dom.playerImg.src = 'Assignment II_Star_REST.svg';
-      dom.playerImg.style.opacity = '1';
-    }, 900);
+    dom.playerImgRest.style.opacity = '1';
   }, 14000);
 
   // Step 6: Super glow
@@ -929,10 +936,11 @@ function hideAllOverlays() {
 function resetPlayerVisual() {
   dom.player.style.display = 'block';
   dom.player.classList.remove('glowing', 'super-glow');
-  dom.playerImg.src = 'Assignment II_Star.svg';
   dom.playerImg.style.opacity = '1';
   dom.playerImg.style.transition = '';
   dom.playerImg.style.filter = '';
+  dom.playerImgRest.style.opacity = '0';
+  dom.playerImgRest.style.transition = '';
 }
 
 function init() {
