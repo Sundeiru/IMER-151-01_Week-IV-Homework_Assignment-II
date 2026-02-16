@@ -1,0 +1,1009 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Star Journey</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html, body {
+  width: 100%; height: 100%;
+  overflow: hidden;
+  background: #050611;
+  font-family: 'Georgia', 'Times New Roman', serif;
+}
+
+#viewport {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100vw; height: 100vh;
+  overflow: hidden;
+  background: linear-gradient(to bottom, #353966 0px, #0d0e1f 1500px, #050611 3000px) no-repeat;
+  background-size: 100% 3000px;
+  background-color: #050611;
+}
+
+#world {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%;
+  height: 100%;
+  will-change: transform;
+}
+
+#starfield {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.bg-star {
+  position: absolute;
+  background: white;
+  border-radius: 50%;
+}
+
+@keyframes twinkle {
+  0%, 100% { opacity: 0.2; }
+  50% { opacity: 0.85; }
+}
+.bg-star.twinkle {
+  animation: twinkle var(--twinkle-duration, 3s) ease-in-out infinite;
+}
+
+#player {
+  position: absolute;
+  left: 50%;
+  top: 60%;
+  transform: translate(-50%, -50%);
+  width: 100px;
+  height: 112px;
+  z-index: 10;
+  will-change: left;
+  pointer-events: none;
+}
+#player img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.game-asset {
+  position: absolute;
+  pointer-events: none;
+  transition: opacity 0.8s ease-out;
+}
+.game-asset.collected {
+  opacity: 0;
+}
+.game-asset img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+/* Gentle float animation for assets */
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-8px); }
+}
+.game-asset.floating {
+  animation: float var(--float-duration, 4s) ease-in-out infinite;
+}
+
+/* Text Bubble */
+#text-bubble {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 100;
+  max-width: 620px;
+  width: 85vw;
+  padding: 40px 48px;
+  background: radial-gradient(
+    ellipse at center,
+    rgba(30, 25, 60, 0.93) 0%,
+    rgba(15, 12, 40, 0.88) 70%,
+    rgba(5, 6, 17, 0.80) 100%
+  );
+  border: 1px solid rgba(255, 231, 191, 0.25);
+  border-radius: 20px;
+  box-shadow:
+    0 0 30px rgba(208, 174, 60, 0.12),
+    0 0 60px rgba(240, 153, 66, 0.06),
+    inset 0 0 30px rgba(255, 231, 191, 0.04);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  color: rgba(255, 231, 191, 0.9);
+  font-size: 15px;
+  line-height: 1.9;
+  text-align: center;
+  letter-spacing: 0.4px;
+  white-space: pre-line;
+  opacity: 0;
+  transition: opacity 1.2s ease-in-out;
+  display: none;
+}
+#text-bubble.visible {
+  opacity: 1;
+}
+
+/* Text bubble theme variants */
+#text-bubble.stardust {
+  border-color: rgba(240, 153, 66, 0.35);
+  box-shadow:
+    0 0 30px rgba(240, 153, 66, 0.15),
+    0 0 60px rgba(223, 182, 47, 0.08),
+    inset 0 0 25px rgba(255, 231, 191, 0.05);
+}
+#text-bubble.blackhole {
+  border-color: rgba(255, 255, 255, 0.2);
+  color: rgba(220, 220, 240, 0.9);
+  box-shadow:
+    0 0 40px rgba(255, 126, 56, 0.1),
+    0 0 80px rgba(0, 0, 0, 0.5),
+    inset 0 0 30px rgba(200, 200, 220, 0.04);
+}
+#text-bubble.dyingstar {
+  border-color: rgba(219, 244, 255, 0.25);
+  color: rgba(200, 215, 255, 0.9);
+  box-shadow:
+    0 0 30px rgba(56, 59, 224, 0.12),
+    0 0 60px rgba(219, 244, 255, 0.06),
+    inset 0 0 25px rgba(190, 200, 255, 0.04);
+}
+#text-bubble.planet {
+  border-color: rgba(227, 145, 145, 0.3);
+  color: rgba(255, 210, 200, 0.9);
+  box-shadow:
+    0 0 30px rgba(227, 145, 145, 0.12),
+    0 0 60px rgba(91, 37, 37, 0.08),
+    inset 0 0 25px rgba(227, 145, 145, 0.04);
+}
+
+/* Player glow effects */
+#player.glowing img {
+  filter: brightness(1.8) drop-shadow(0 0 25px rgba(255, 231, 191, 0.7));
+  transition: filter 2s ease-in;
+}
+#player.super-glow img {
+  filter: brightness(6) drop-shadow(0 0 80px white) drop-shadow(0 0 120px white);
+  transition: filter 1.5s ease-in;
+}
+
+/* Ephemeral text */
+#ephemeral-text {
+  position: fixed;
+  bottom: 50%;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 50;
+  color: rgba(255, 231, 191, 0.85);
+  font-size: 17px;
+  line-height: 2.1;
+  text-align: center;
+  white-space: pre-line;
+  opacity: 0;
+  transition: opacity 2.5s ease-in-out;
+  pointer-events: none;
+  display: none;
+}
+#ephemeral-text.visible {
+  opacity: 1;
+}
+
+/* White flash */
+#white-flash {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100vw; height: 100vh;
+  background: white;
+  z-index: 200;
+  opacity: 0;
+  pointer-events: none;
+  display: none;
+}
+
+/* Sparkles */
+#sparkles {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100vw; height: 100vh;
+  z-index: 150;
+  pointer-events: none;
+  display: none;
+}
+.sparkle {
+  position: absolute;
+  background: #FFE7BF;
+  border-radius: 50%;
+  box-shadow: 0 0 6px rgba(255, 231, 191, 0.8), 0 0 12px rgba(255, 215, 161, 0.4);
+}
+@keyframes sparkle-drift {
+  0% { opacity: 1; transform: scale(1) translate(0, 0); }
+  50% { opacity: 0.7; }
+  100% { opacity: 0; transform: scale(0.3) translate(var(--drift-x, 0px), var(--drift-y, -40px)); }
+}
+
+/* Restart overlay */
+#restart-overlay {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100vw; height: 100vh;
+  z-index: 300;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  background: rgba(5, 6, 17, 0.9);
+  cursor: default;
+}
+#restart-text {
+  color: rgba(255, 231, 191, 0.85);
+  font-size: 22px;
+  letter-spacing: 5px;
+  text-transform: uppercase;
+  opacity: 0;
+  transition: opacity 3s ease-in;
+}
+#restart-text.visible {
+  opacity: 1;
+}
+#restart-overlay.active {
+  cursor: pointer;
+}
+</style>
+</head>
+<body>
+
+<div id="viewport">
+  <div id="world">
+    <div id="starfield"></div>
+  </div>
+
+  <div id="player">
+    <img src="Assignment II_Star.svg" alt="Star" id="player-img">
+  </div>
+
+  <div id="text-bubble">
+    <div id="text-bubble-content"></div>
+  </div>
+
+  <div id="ephemeral-text"></div>
+  <div id="white-flash"></div>
+  <div id="sparkles"></div>
+
+  <div id="restart-overlay">
+    <div id="restart-text">PRESS ANYWHERE TO RESTART</div>
+  </div>
+</div>
+
+<script>
+// ============================================================
+// POEM TEXTS
+// ============================================================
+
+const STARDUST_1_TEXT = `Coral feelings emerging from the surface
+With the falling sand persevering evermore
+
+Here, where the blades did not pierce
+Where the bubbles magnified vibrant frequencies
+Where the ice was not so resentful
+
+Here, where the switch was turned off
+Where the envelopes contained handwritten letters
+Where the bud showed signs of bloom
+
+The flame flickered away at the slightest breeze
+With the falling sand concluding its cycle`;
+
+const STARDUST_2_TEXT = `Sunsets over the lake
+While the chiming grew louder
+
+Warmth from the cardinal
+It was almost like this second was the only worry
+Was it folly for such a thought to occur?
+
+The vase was full then
+Now those glimpses wilt and hang over the edge
+But miracles drifted around us
+
+Waddling over noticeable cracks
+The chiming announced its last toll`;
+
+const STARDUST_3_TEXT = `Gazing into a fictional sea
+Ethereal moments did not last forever
+
+Somewhere within, there was a suspense amidst the saturation
+It brought daffodil bouquets to urban owls
+Overflowing with wonders, the forest slowed its chatter
+
+From red storm clouds, the lyre\u2019s song reached the roots
+As space made its toll
+Uncertainty was the sole figure who remained
+
+Lyrics left unsaid
+Ethereal moments were but a dream`;
+
+const BLACKHOLE_TEXT = `Leaves of embers, descending into ashes
+As the waves shatter against the glass rafters
+
+The tug of the snapdragons remained alluring
+Your perception succumbed to the absence of vision
+High volume obscured those vital signals
+
+Light\u2019s rays crumbled to the dust
+As the wise sought answers in the mirrored corridor
+Declining into an eternal spiral
+
+Navigating through breathing pages with veiled eyes
+As the waves finally shattered the glass rafters`;
+
+const DYINGSTAR_TEXT = `Steel vines dispersed in motion
+Crafting silently behind vacant conversations
+
+The pedestals steadily ascended
+Contributors disregarding the atmospheric reality
+Merely lavishing the pools of rhodium
+
+A rapid quicksand of sentiments
+With unknown pauses left undeciphered
+Yet the microphone was placed in our grasp
+
+Childish automations in a clay jar
+Scheming behind vacant conversations`;
+
+const PLANET_TEXT = `Blank expressions across the canvas
+Minutia enduring severed harmonies
+
+Aquatic implosions disturb the horizon line
+Suddenly the puzzle is reversed
+For the threads tremble from the exposure
+
+Noise covers the cracked eggshells
+Fleeting whispers fade farther in the hallway
+While the host is pulled away from the party
+
+Five crayons scratch the pure tile
+Insignificantly enduring severed harmonies`;
+
+const EPHEMERAL_FINAL_TEXT = `As night descends
+Rest befalls your eyes
+
+Sleep, my child
+To await tomorrow, whether sweet or dreadful`;
+
+// ============================================================
+// CONFIGURATION
+// ============================================================
+
+const CONFIG = {
+  PLAYER_SPEED: 4,
+  PLAYER_DISPLAY_WIDTH: 100,
+  PLAYER_DISPLAY_HEIGHT: 112,
+  PLAYER_SCREEN_Y_FRAC: 0.6,
+  AUTO_DESCENT_SPEED: 0.8,
+  GRADIENT_DEPTH: 3000,
+  STARFIELD_DENSITY: 0.00025,
+  STARFIELD_CHUNK_HEIGHT: 2000,
+  COLLISION_SHRINK: 0.3,
+  TEXT_DISPLAY_DURATION: 9000,
+  TEXT_FADE_DURATION: 1200,
+  ASSET_SCALES: {
+    asteroid1: 100,
+    asteroid2: 130,
+    stardust: 65,
+    blackhole: 180,
+    dyingstar: 220,
+    planet: 190,
+  },
+};
+
+const ASSET_SRC_MAP = {
+  asteroid1: 'Assignment II_Asteroid I.svg',
+  asteroid2: 'Assignment II_Asteroid II.svg',
+  stardust: 'Assignment II_Stardust.svg',
+  blackhole: 'Assignment II_Black Hole.svg',
+  dyingstar: 'Assignment II_Dying Star.svg',
+  planet: 'Assignment II_Planet I.svg',
+};
+
+const ASSET_ASPECT_RATIOS = {
+  asteroid1: 279 / 312,
+  asteroid2: 492 / 485,
+  stardust: 1,
+  blackhole: 286 / 260,
+  dyingstar: 810 / 833,
+  planet: 431 / 361,
+};
+
+// ============================================================
+// ASSET DEFINITIONS (worldX as fraction 0-1 of viewport width)
+// ============================================================
+
+const ASSET_DEFS = [
+  { type: 'asteroid1', worldX: 0.15, worldY: 800 },
+  { type: 'asteroid2', worldX: 0.72, worldY: 1200 },
+  { type: 'stardust',  worldX: 0.48, worldY: 1800, text: STARDUST_1_TEXT, stardustIndex: 1 },
+  { type: 'asteroid1', worldX: 0.82, worldY: 2400 },
+  { type: 'asteroid2', worldX: 0.22, worldY: 2800 },
+  { type: 'asteroid1', worldX: 0.58, worldY: 3200 },
+  { type: 'blackhole', worldX: 0.42, worldY: 3800, text: BLACKHOLE_TEXT, themeClass: 'blackhole' },
+  { type: 'asteroid2', worldX: 0.68, worldY: 4400 },
+  { type: 'asteroid1', worldX: 0.28, worldY: 4800 },
+  { type: 'stardust',  worldX: 0.53, worldY: 5400, text: STARDUST_2_TEXT, stardustIndex: 2 },
+  { type: 'asteroid2', worldX: 0.18, worldY: 6000 },
+  { type: 'asteroid1', worldX: 0.78, worldY: 6500 },
+  { type: 'dyingstar', worldX: 0.38, worldY: 7000, text: DYINGSTAR_TEXT, themeClass: 'dyingstar' },
+  { type: 'asteroid1', worldX: 0.62, worldY: 7600 },
+  { type: 'asteroid2', worldX: 0.32, worldY: 8000 },
+  { type: 'planet',    worldX: 0.48, worldY: 8500, text: PLANET_TEXT, themeClass: 'planet' },
+  { type: 'asteroid2', worldX: 0.73, worldY: 9200 },
+  { type: 'asteroid1', worldX: 0.23, worldY: 9600 },
+  { type: 'stardust',  worldX: 0.48, worldY: 10200, text: STARDUST_3_TEXT, stardustIndex: 3 },
+];
+
+// ============================================================
+// GAME STATE
+// ============================================================
+
+const state = {
+  playerX: 0,
+  playerY: 0,
+  cameraY: 0,
+  keys: {},
+  assets: [],
+  phase: 'playing',
+  textBubbleTimer: null,
+  endgameTimeouts: [],
+  starfieldGeneratedTo: 0,
+  animFrameId: null,
+};
+
+// ============================================================
+// DOM REFERENCES
+// ============================================================
+
+const dom = {
+  viewport: null,
+  world: null,
+  starfield: null,
+  player: null,
+  playerImg: null,
+  textBubble: null,
+  textBubbleContent: null,
+  ephemeralText: null,
+  whiteFlash: null,
+  sparkles: null,
+  restartOverlay: null,
+  restartText: null,
+};
+
+function cacheDom() {
+  dom.viewport = document.getElementById('viewport');
+  dom.world = document.getElementById('world');
+  dom.starfield = document.getElementById('starfield');
+  dom.player = document.getElementById('player');
+  dom.playerImg = document.getElementById('player-img');
+  dom.textBubble = document.getElementById('text-bubble');
+  dom.textBubbleContent = document.getElementById('text-bubble-content');
+  dom.ephemeralText = document.getElementById('ephemeral-text');
+  dom.whiteFlash = document.getElementById('white-flash');
+  dom.sparkles = document.getElementById('sparkles');
+  dom.restartOverlay = document.getElementById('restart-overlay');
+  dom.restartText = document.getElementById('restart-text');
+}
+
+// ============================================================
+// STARFIELD GENERATION
+// ============================================================
+
+function generateStarfield(fromY, toY) {
+  const vw = window.innerWidth;
+  const area = vw * (toY - fromY);
+  const count = Math.floor(area * CONFIG.STARFIELD_DENSITY);
+
+  const fragment = document.createDocumentFragment();
+
+  for (let i = 0; i < count; i++) {
+    const dot = document.createElement('div');
+    dot.className = 'bg-star';
+    const x = Math.random() * vw;
+    const y = fromY + Math.random() * (toY - fromY);
+    const size = 1 + Math.random() * 2;
+
+    dot.style.cssText = `left:${x}px;top:${y}px;width:${size}px;height:${size}px;opacity:${0.15 + Math.random() * 0.55}`;
+
+    if (Math.random() < 0.12) {
+      dot.classList.add('twinkle');
+      dot.style.setProperty('--twinkle-duration', (2 + Math.random() * 5) + 's');
+      dot.style.animationDelay = (Math.random() * 5) + 's';
+    }
+
+    fragment.appendChild(dot);
+  }
+
+  dom.starfield.appendChild(fragment);
+  state.starfieldGeneratedTo = Math.max(state.starfieldGeneratedTo, toY);
+}
+
+function maybeExtendStarfield() {
+  if (state.playerY + 2000 > state.starfieldGeneratedTo) {
+    generateStarfield(state.starfieldGeneratedTo, state.starfieldGeneratedTo + CONFIG.STARFIELD_CHUNK_HEIGHT);
+  }
+}
+
+// ============================================================
+// ASSET CREATION
+// ============================================================
+
+function createAssets() {
+  const vw = window.innerWidth;
+  const worldEl = dom.world;
+
+  state.assets = [];
+
+  ASSET_DEFS.forEach(function(def, i) {
+    const el = document.createElement('div');
+    el.className = 'game-asset floating';
+
+    const img = document.createElement('img');
+    img.src = ASSET_SRC_MAP[def.type];
+    img.alt = def.type;
+    el.appendChild(img);
+
+    const displayWidth = CONFIG.ASSET_SCALES[def.type];
+    const aspectRatio = ASSET_ASPECT_RATIOS[def.type];
+    const displayHeight = displayWidth / aspectRatio;
+
+    el.style.width = displayWidth + 'px';
+    el.style.height = displayHeight + 'px';
+
+    // Convert fractional X to pixel X
+    const pixelX = def.worldX * (vw - displayWidth);
+    el.style.left = pixelX + 'px';
+    el.style.top = def.worldY + 'px';
+
+    // Vary float animation
+    el.style.setProperty('--float-duration', (3.5 + Math.random() * 3) + 's');
+    el.style.animationDelay = (Math.random() * 3) + 's';
+
+    worldEl.appendChild(el);
+
+    var themeClass = def.themeClass || null;
+    if (def.type === 'stardust') themeClass = 'stardust';
+
+    state.assets.push({
+      id: i,
+      type: def.type,
+      worldX: pixelX,
+      worldY: def.worldY,
+      width: displayWidth,
+      height: displayHeight,
+      element: el,
+      collected: false,
+      text: def.text || null,
+      stardustIndex: def.stardustIndex || null,
+      themeClass: themeClass,
+    });
+  });
+}
+
+// ============================================================
+// INPUT
+// ============================================================
+
+function setupInput() {
+  document.addEventListener('keydown', function(e) {
+    if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].indexOf(e.key) !== -1) {
+      e.preventDefault();
+      state.keys[e.key] = true;
+    }
+  });
+  document.addEventListener('keyup', function(e) {
+    state.keys[e.key] = false;
+  });
+}
+
+// ============================================================
+// PLAYER MOVEMENT
+// ============================================================
+
+function updatePlayer() {
+  var vw = window.innerWidth;
+  var speed = CONFIG.PLAYER_SPEED;
+  var halfW = CONFIG.PLAYER_DISPLAY_WIDTH / 2;
+
+  if (state.keys['ArrowLeft']) {
+    state.playerX = Math.max(halfW, state.playerX - speed);
+  }
+  if (state.keys['ArrowRight']) {
+    state.playerX = Math.min(vw - halfW, state.playerX + speed);
+  }
+  if (state.keys['ArrowUp']) {
+    state.playerY = Math.max(0, state.playerY - speed * 0.7);
+  }
+  if (state.keys['ArrowDown']) {
+    state.playerY += speed;
+  }
+
+  // Auto-descent
+  state.playerY += CONFIG.AUTO_DESCENT_SPEED;
+}
+
+// ============================================================
+// CAMERA
+// ============================================================
+
+function updateCamera() {
+  var vh = window.innerHeight;
+  var targetCameraY = state.playerY - vh * CONFIG.PLAYER_SCREEN_Y_FRAC;
+
+  // Smooth follow
+  state.cameraY += (targetCameraY - state.cameraY) * 0.08;
+  if (state.cameraY < 0) state.cameraY = 0;
+
+  dom.world.style.transform = 'translateY(' + (-state.cameraY) + 'px)';
+
+  // Shift background gradient on viewport to match camera depth
+  dom.viewport.style.backgroundPositionY = (-state.cameraY) + 'px';
+}
+
+function updatePlayerVisual() {
+  dom.player.style.left = state.playerX + 'px';
+}
+
+// ============================================================
+// COLLISION DETECTION
+// ============================================================
+
+function checkCollisions() {
+  if (state.phase !== 'playing') return;
+
+  var pw = CONFIG.PLAYER_DISPLAY_WIDTH;
+  var ph = CONFIG.PLAYER_DISPLAY_HEIGHT;
+  var shrink = CONFIG.COLLISION_SHRINK;
+
+  var px = state.playerX - pw / 2;
+  var py = state.playerY - ph / 2;
+
+  var pLeft = px + pw * shrink / 2;
+  var pRight = px + pw - pw * shrink / 2;
+  var pTop = py + ph * shrink / 2;
+  var pBottom = py + ph - ph * shrink / 2;
+
+  for (var i = 0; i < state.assets.length; i++) {
+    var asset = state.assets[i];
+    if (asset.collected) continue;
+
+    var aLeft = asset.worldX + asset.width * shrink / 2;
+    var aRight = asset.worldX + asset.width - asset.width * shrink / 2;
+    var aTop = asset.worldY + asset.height * shrink / 2;
+    var aBottom = asset.worldY + asset.height - asset.height * shrink / 2;
+
+    if (pLeft < aRight && pRight > aLeft && pTop < aBottom && pBottom > aTop) {
+      handleCollision(asset);
+      break;
+    }
+  }
+}
+
+// ============================================================
+// COLLISION HANDLING
+// ============================================================
+
+function handleCollision(asset) {
+  asset.collected = true;
+
+  if (asset.text) {
+    // Pause game, show text bubble
+    state.phase = 'text_bubble';
+    showTextBubble(asset.text, asset.themeClass, function() {
+      // Fade out the asset
+      asset.element.classList.add('collected');
+
+      if (asset.stardustIndex === 3) {
+        startEndgameSequence();
+      } else {
+        state.phase = 'playing';
+      }
+    });
+  } else {
+    // Asteroids just fade out
+    asset.element.classList.add('collected');
+  }
+}
+
+// ============================================================
+// TEXT BUBBLE
+// ============================================================
+
+function showTextBubble(text, themeClass, onComplete) {
+  var bubble = dom.textBubble;
+  var content = dom.textBubbleContent;
+
+  content.textContent = text;
+
+  // Reset classes
+  bubble.className = '';
+  if (themeClass) bubble.classList.add(themeClass);
+
+  bubble.style.display = 'block';
+  // Force reflow so the transition triggers from opacity 0 (CSS base) to 1 (visible class)
+  void bubble.offsetHeight;
+
+  requestAnimationFrame(function() {
+    bubble.classList.add('visible');
+  });
+
+  if (state.textBubbleTimer) clearTimeout(state.textBubbleTimer);
+
+  state.textBubbleTimer = setTimeout(function() {
+    bubble.classList.remove('visible');
+
+    setTimeout(function() {
+      bubble.style.display = 'none';
+      if (onComplete) onComplete();
+    }, CONFIG.TEXT_FADE_DURATION);
+  }, CONFIG.TEXT_DISPLAY_DURATION);
+}
+
+// ============================================================
+// ENDGAME SEQUENCE
+// ============================================================
+
+function startEndgameSequence() {
+  state.phase = 'endgame';
+
+  // Clear any prior endgame timeouts
+  state.endgameTimeouts.forEach(function(t) { clearTimeout(t); });
+  state.endgameTimeouts = [];
+
+  function schedule(fn, delay) {
+    state.endgameTimeouts.push(setTimeout(fn, delay));
+  }
+
+  // Step 1: Fade out all remaining assets
+  schedule(function() {
+    state.assets.forEach(function(a) {
+      if (!a.collected) {
+        a.element.style.transition = 'opacity 2s ease-out';
+        a.element.style.opacity = '0';
+      }
+    });
+  }, 500);
+
+  // Step 2: Star begins to glow
+  schedule(function() {
+    dom.player.classList.add('glowing');
+  }, 1500);
+
+  // Step 3: Ephemeral text appears
+  schedule(function() {
+    dom.ephemeralText.textContent = EPHEMERAL_FINAL_TEXT;
+    dom.ephemeralText.style.display = 'block';
+    requestAnimationFrame(function() {
+      dom.ephemeralText.classList.add('visible');
+    });
+  }, 4000);
+
+  // Step 4: Ephemeral text fades out
+  schedule(function() {
+    dom.ephemeralText.classList.remove('visible');
+  }, 10500);
+
+  // Step 5: Star crossfades to REST variant
+  schedule(function() {
+    dom.playerImg.style.transition = 'opacity 0.8s ease';
+    dom.playerImg.style.opacity = '0';
+    schedule(function() {
+      dom.playerImg.src = 'Assignment II_Star_REST.svg';
+      dom.playerImg.style.opacity = '1';
+    }, 900);
+  }, 14000);
+
+  // Step 6: Super glow
+  schedule(function() {
+    dom.player.classList.remove('glowing');
+    dom.player.classList.add('super-glow');
+  }, 16500);
+
+  // Step 7: White flash
+  schedule(function() {
+    dom.whiteFlash.style.display = 'block';
+    dom.whiteFlash.style.opacity = '0';
+    dom.whiteFlash.style.transition = 'opacity 1.5s ease-in';
+    requestAnimationFrame(function() {
+      dom.whiteFlash.style.opacity = '1';
+    });
+  }, 18000);
+
+  // Step 8: Flash holds, star hidden, sparkles appear, flash fades
+  schedule(function() {
+    dom.player.style.display = 'none';
+    createSparkles();
+
+    dom.whiteFlash.style.transition = 'opacity 2.5s ease-out';
+    dom.whiteFlash.style.opacity = '0';
+  }, 20000);
+
+  // Step 9: Show restart overlay
+  schedule(function() {
+    dom.whiteFlash.style.display = 'none';
+    dom.restartOverlay.style.display = 'flex';
+  }, 22500);
+
+  // Step 10: Fade in restart text
+  schedule(function() {
+    dom.restartText.classList.add('visible');
+  }, 24000);
+
+  // Step 11: Make restart interactive (after text fully fades in + pause)
+  schedule(function() {
+    dom.restartOverlay.classList.add('active');
+    state.phase = 'ended';
+
+    function restartHandler() {
+      dom.restartOverlay.removeEventListener('click', restartHandler);
+      document.removeEventListener('keydown', restartHandler);
+      restartGame();
+    }
+
+    dom.restartOverlay.addEventListener('click', restartHandler);
+    document.addEventListener('keydown', restartHandler);
+  }, 30000);
+}
+
+// ============================================================
+// SPARKLES
+// ============================================================
+
+function createSparkles() {
+  var container = dom.sparkles;
+  container.style.display = 'block';
+  container.innerHTML = '';
+
+  var vh = window.innerHeight;
+  var vw = window.innerWidth;
+  var cx = vw / 2;
+  var cy = vh * CONFIG.PLAYER_SCREEN_Y_FRAC;
+
+  for (var i = 0; i < 25; i++) {
+    var spark = document.createElement('div');
+    spark.className = 'sparkle';
+
+    var angle = Math.random() * Math.PI * 2;
+    var dist = 15 + Math.random() * 100;
+    var x = cx + Math.cos(angle) * dist;
+    var y = cy + Math.sin(angle) * dist;
+    var size = 2 + Math.random() * 4;
+    var duration = 2 + Math.random() * 3;
+    var delay = Math.random() * 1.5;
+    var driftX = (Math.random() - 0.5) * 60;
+    var driftY = -20 - Math.random() * 50;
+
+    spark.style.cssText = 'left:' + x + 'px;top:' + y + 'px;width:' + size + 'px;height:' + size + 'px;' +
+      '--drift-x:' + driftX + 'px;--drift-y:' + driftY + 'px;' +
+      'animation:sparkle-drift ' + duration + 's ease-out ' + delay + 's both;';
+
+    container.appendChild(spark);
+  }
+}
+
+// ============================================================
+// INITIALIZATION & RESTART
+// ============================================================
+
+function clearWorld() {
+  // Remove game asset elements
+  var assets = dom.world.querySelectorAll('.game-asset');
+  for (var i = 0; i < assets.length; i++) {
+    assets[i].remove();
+  }
+
+  // Clear starfield
+  dom.starfield.innerHTML = '';
+  state.starfieldGeneratedTo = 0;
+}
+
+function hideAllOverlays() {
+  dom.textBubble.style.display = 'none';
+  dom.textBubble.className = '';
+
+  dom.ephemeralText.style.display = 'none';
+  dom.ephemeralText.classList.remove('visible');
+
+  dom.whiteFlash.style.display = 'none';
+  dom.whiteFlash.style.opacity = '0';
+
+  dom.sparkles.style.display = 'none';
+  dom.sparkles.innerHTML = '';
+
+  dom.restartOverlay.style.display = 'none';
+  dom.restartOverlay.classList.remove('active');
+  dom.restartText.classList.remove('visible');
+}
+
+function resetPlayerVisual() {
+  dom.player.style.display = 'block';
+  dom.player.classList.remove('glowing', 'super-glow');
+  dom.playerImg.src = 'Assignment II_Star.svg';
+  dom.playerImg.style.opacity = '1';
+  dom.playerImg.style.transition = '';
+  dom.playerImg.style.filter = '';
+}
+
+function init() {
+  // Cancel any running loop
+  if (state.animFrameId) cancelAnimationFrame(state.animFrameId);
+
+  // Clear endgame timeouts
+  state.endgameTimeouts.forEach(function(t) { clearTimeout(t); });
+  state.endgameTimeouts = [];
+  if (state.textBubbleTimer) clearTimeout(state.textBubbleTimer);
+
+  // Reset state
+  var vw = window.innerWidth;
+  state.playerX = vw / 2;
+  state.playerY = 0;
+  state.cameraY = 0;
+  state.keys = {};
+  state.assets = [];
+  state.phase = 'playing';
+  state.textBubbleTimer = null;
+
+  // Clear and rebuild
+  clearWorld();
+  hideAllOverlays();
+  resetPlayerVisual();
+
+  // Reset background position
+  dom.viewport.style.backgroundPositionY = '0px';
+
+  // Generate initial starfield
+  generateStarfield(0, 12000);
+
+  // Create assets
+  createAssets();
+
+  // Start loop
+  loop();
+}
+
+function restartGame() {
+  init();
+}
+
+// ============================================================
+// GAME LOOP
+// ============================================================
+
+function loop() {
+  if (state.phase === 'playing') {
+    updatePlayer();
+    checkCollisions();
+  }
+
+  updateCamera();
+  updatePlayerVisual();
+  maybeExtendStarfield();
+
+  if (state.phase !== 'ended') {
+    state.animFrameId = requestAnimationFrame(loop);
+  }
+}
+
+// ============================================================
+// BOOTSTRAP
+// ============================================================
+
+window.addEventListener('DOMContentLoaded', function() {
+  cacheDom();
+  setupInput();
+  init();
+});
+</script>
+</body>
+</html>
