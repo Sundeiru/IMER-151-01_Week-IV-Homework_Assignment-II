@@ -1,0 +1,15 @@
+<svg width="168" height="168" viewBox="0 0 168 168" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g filter="url(#filter0_f_8_46)">
+<circle cx="83.8" cy="83.8" r="44" fill="#F09942"/>
+</g>
+<path d="M79.1499 70.4352C80.6466 65.8287 87.1637 65.8287 88.6604 70.4352L89.1812 72.0381C89.8506 74.0982 91.7704 75.493 93.9365 75.493H95.6219C100.465 75.493 102.479 81.6911 98.5608 84.5381L97.1973 85.5287C95.4449 86.8019 94.7116 89.0588 95.381 91.1189L95.9018 92.7217C97.3985 97.3283 92.1261 101.159 88.2075 98.3119L86.8441 97.3213C85.0916 96.0481 82.7187 96.0481 80.9662 97.3213L79.6028 98.3119C75.6842 101.159 70.4118 97.3283 71.9086 92.7217L72.4294 91.1189C73.0987 89.0588 72.3654 86.8019 70.613 85.5287L69.2495 84.5381C65.331 81.6911 67.3449 75.493 72.1885 75.493H73.8738C76.0399 75.493 77.9597 74.0982 78.6291 72.0381L79.1499 70.4352Z" fill="white"/>
+<foreignObject x="51.5" y="51.5" width="64.6" height="64.6"><div xmlns="http://www.w3.org/1999/xhtml" style="backdrop-filter:blur(3.15px);clip-path:url(#bgblur_0_8_46_clip_path);height:100%;width:100%"></div></foreignObject><circle data-figma-bg-blur-radius="6.3" cx="83.8" cy="83.8" r="26" fill="#DFB62F" fill-opacity="0.51"/>
+<defs>
+<filter id="filter0_f_8_46" x="4.95911e-05" y="-1.14441e-05" width="167.6" height="167.6" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+<feFlood flood-opacity="0" result="BackgroundImageFix"/>
+<feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape"/>
+<feGaussianBlur stdDeviation="19.9" result="effect1_foregroundBlur_8_46"/>
+</filter>
+<clipPath id="bgblur_0_8_46_clip_path" transform="translate(-51.5 -51.5)"><circle cx="83.8" cy="83.8" r="26"/>
+</clipPath></defs>
+</svg>
