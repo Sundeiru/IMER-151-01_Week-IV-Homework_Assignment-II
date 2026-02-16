@@ -15,12 +15,18 @@ html, body {
 
 #viewport {
   position: fixed;
-  top: 0; left: 0;
-  width: 100vw; height: 100vh;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 393px;
+  max-width: 100vw;
+  height: 100vh;
   overflow: hidden;
   background: linear-gradient(to bottom, #353966 0px, #0d0e1f 1500px, #050611 3000px) no-repeat;
   background-size: 100% 3000px;
   background-color: #050611;
+  -webkit-mask-image: linear-gradient(to right, transparent 0%, black 4%, black 96%, transparent 100%);
+  mask-image: linear-gradient(to right, transparent 0%, black 4%, black 96%, transparent 100%);
 }
 
 #world {
@@ -58,8 +64,8 @@ html, body {
   left: 50%;
   top: 60%;
   transform: translate(-50%, -50%);
-  width: 100px;
-  height: 112px;
+  width: 150px;
+  height: 168px;
   z-index: 10;
   will-change: left;
   pointer-events: none;
@@ -70,8 +76,8 @@ html, body {
   width: 100%;
   height: 100%;
   object-fit: contain;
-  -webkit-mask-image: radial-gradient(ellipse 80% 80% at center, black 50%, transparent 80%);
-  mask-image: radial-gradient(ellipse 80% 80% at center, black 50%, transparent 80%);
+  -webkit-mask-image: radial-gradient(ellipse at center, black 60%, transparent 100%);
+  mask-image: radial-gradient(ellipse at center, black 60%, transparent 100%);
 }
 #player-img-rest {
   opacity: 0;
@@ -388,11 +394,11 @@ To await tomorrow, whether sweet or dreadful`;
 // ============================================================
 
 const CONFIG = {
+  GAME_WIDTH: 393,
   PLAYER_SPEED: 4,
-  PLAYER_DISPLAY_WIDTH: 100,
-  PLAYER_DISPLAY_HEIGHT: 112,
+  PLAYER_DISPLAY_WIDTH: 150,
+  PLAYER_DISPLAY_HEIGHT: 168,
   PLAYER_SCREEN_Y_FRAC: 0.6,
-  AUTO_DESCENT_SPEED: 0.8,
   GRADIENT_DEPTH: 3000,
   STARFIELD_DENSITY: 0.00025,
   STARFIELD_CHUNK_HEIGHT: 2000,
@@ -510,8 +516,8 @@ function cacheDom() {
 // ============================================================
 
 function generateStarfield(fromY, toY) {
-  const vw = window.innerWidth;
-  const area = vw * (toY - fromY);
+  const gw = CONFIG.GAME_WIDTH;
+  const area = gw * (toY - fromY);
   const count = Math.floor(area * CONFIG.STARFIELD_DENSITY);
 
   const fragment = document.createDocumentFragment();
@@ -519,7 +525,7 @@ function generateStarfield(fromY, toY) {
   for (let i = 0; i < count; i++) {
     const dot = document.createElement('div');
     dot.className = 'bg-star';
-    const x = Math.random() * vw;
+    const x = Math.random() * gw;
     const y = fromY + Math.random() * (toY - fromY);
     const size = 1 + Math.random() * 2;
 
@@ -549,7 +555,7 @@ function maybeExtendStarfield() {
 // ============================================================
 
 function createAssets() {
-  const vw = window.innerWidth;
+  const vw = CONFIG.GAME_WIDTH;
   const worldEl = dom.world;
 
   state.assets = [];
@@ -621,7 +627,7 @@ function setupInput() {
 // ============================================================
 
 function updatePlayer() {
-  var vw = window.innerWidth;
+  var gw = CONFIG.GAME_WIDTH;
   var speed = CONFIG.PLAYER_SPEED;
   var halfW = CONFIG.PLAYER_DISPLAY_WIDTH / 2;
 
@@ -629,7 +635,7 @@ function updatePlayer() {
     state.playerX = Math.max(halfW, state.playerX - speed);
   }
   if (state.keys['ArrowRight']) {
-    state.playerX = Math.min(vw - halfW, state.playerX + speed);
+    state.playerX = Math.min(gw - halfW, state.playerX + speed);
   }
   if (state.keys['ArrowUp']) {
     state.playerY = Math.max(0, state.playerY - speed);
@@ -637,9 +643,6 @@ function updatePlayer() {
   if (state.keys['ArrowDown']) {
     state.playerY += speed;
   }
-
-  // Auto-descent
-  state.playerY += CONFIG.AUTO_DESCENT_SPEED;
 }
 
 // ============================================================
@@ -953,8 +956,7 @@ function init() {
   if (state.textBubbleTimer) clearTimeout(state.textBubbleTimer);
 
   // Reset state
-  var vw = window.innerWidth;
-  state.playerX = vw / 2;
+  state.playerX = CONFIG.GAME_WIDTH / 2;
   state.playerY = 0;
   state.cameraY = 0;
   state.keys = {};
