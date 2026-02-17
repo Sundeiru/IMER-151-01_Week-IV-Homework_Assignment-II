@@ -1,1 +1,119 @@
+Create an interaction.
 
+Provided Files:
+Assets provides the objects to be used in this interaction. Setup provides the environment, the setting of the interaction.
+star in assets.svg is a controllable character that can be moved with the right, left, up, and down keys on the user's keyboard.
+
+Interaction:
+• The setting is setup.svg. space is a continuous downward scroll. The user can have the Star move downwards indefinitely.
+• The setting is astronomical space with stars scattered throughout the background. The space has a gradient. As the Star goes downwards, it gets darker. When the background gets the darkest value it can get, it remains at that value.
+• Objects are floating around in this space. These objects are the assets. Duplicate the Assignment II_Asteroid I.svg and Assignment II_Asteroid II.svg throughout the space.
+• Assignment II_Stardust.svg appears three times. The other assets only appear once per asset.
+• When the Star touches the Stardusts, the Stardust disappears. But right before it disappears, a text bubble shows up.   The text bubbles display the text below. The numbering indicates the duplications, and the style of the text bubble should be in the visual style of the assets and the background.
+
+1.
+Coral feelings emerging from the surface
+With the falling sand persevering evermore
+
+Here, where the blades did not pierce
+Where the bubbles magnified vibrant frequencies
+Where the ice was not so resentful
+
+Here, where the switch was turned off
+Where the envelopes contained handwritten letters
+Where the bud showed signs of bloom
+
+The flame flickered away at the slightest breeze
+With the falling sand concluding its cycle
+
+2. 
+Sunsets over the lake
+While the chiming grew louder
+
+Warmth from the cardinal
+It was almost like this second was the only worry
+Was it folly for such a thought to occur?
+
+The vase was full then
+Now those glimpses wilt and hang over the edge
+But miracles drifted around us
+
+Waddling over noticeable cracks
+The chiming announced its last toll
+
+3.
+Gazing into a fictional sea
+Ethereal moments did not last forever
+
+Somewhere within, there was a suspense amidst the saturation
+It brought daffodil bouquets to urban owls
+Overflowing with wonders, the forest slowed its chatter
+
+From red storm clouds, the lyre’s song reached the roots
+As space made its toll
+Uncertainty was the sole figure who remained
+
+Lyrics left unsaid
+Ethereal moments were but a dream
+
+• The same mechanic applies to the other assets, the Assignment II_Black Hole.svg, Assignment II_Dying Star.svg, and Assignment II_Planet I.svg. The prompts go as follows:
+
+Black Hole:
+Leaves of embers, descending into ashes
+As the waves shatter against the glass rafters
+
+The tug of the snapdragons remained alluring
+Your perception succumbed to the absence of vision
+High volume obscured those vital signals
+
+Light’s rays crumbled to the dust
+As the wise sought answers in the mirrored corridor
+Declining into an eternal spiral
+
+Navigating through breathing pages with veiled eyes
+As the waves finally shattered the glass rafters
+
+Dying Star:
+Steel vines dispersed in motion
+Crafting silently behind vacant conversations
+
+The pedestals steadily ascended
+Contributors disregarding the atmospheric reality
+Merely lavishing the pools of rhodium
+
+A rapid quicksand of sentiments
+With unknown pauses left undeciphered
+Yet the microphone was placed in our grasp
+
+Childish automations in a clay jar
+Scheming behind vacant conversations
+
+Planet I:
+Blank expressions across the canvas
+Minutia enduring severed harmonies
+
+Aquatic implosions disturb the horizon line
+Suddenly the puzzle is reversed
+For the threads tremble from the exposure
+
+Noise covers the cracked eggshells
+Fleeting whispers fade farther in the hallway
+While the host is pulled away from the party
+
+Five crayons scratch the pure tile
+Insignificantly enduring severed harmonies
+
+• The last asset to appear is the last stardust. The user may travel farther and farther down past this stardust without ever touching it, and the path will continue downwards with no apparent end, but there will be no assets and it will be dark.
+• If the user touches the last stardust, the text bubble interaction occurs. Then after that, all assets that are still existent fade. The Star begins to glow brightly. After a pause, ephemeral text appears above the Star:
+
+As night descends 
+Rest befalls your eyes
+
+Sleep, my child
+To await tomorrow, whether sweet or dreadful
+
+After this, the text bubble fades away. There is a pause, and then the Star turns into Assignment II_Star_REST.svg. Then, it shines so brightly that the light encompasses the entire screen. Then the light fades away, and where the Star was, there are sparkles. The screen is overlaid with a text that says:
+
+PRESS ANYWHERE TO RESTART  
+
+This text gradually fades in, and the prompted interaction does not become functional until after a pause after it fully fades in.
