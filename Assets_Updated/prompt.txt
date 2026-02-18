@@ -1,7 +1,8 @@
 Create an interaction.
 
 Provided Files:
-Assets provides the objects to be used in this interaction. Setup provides the environment, the setting of the interaction.
+• Only use the files in Assets_Updated
+• Assets provides the objects to be used in this interaction. Setup provides the environment, the setting of the interaction.
 star in assets.svg is a controllable character that can be moved with the right, left, up, and down keys on the user's keyboard.
 
 Interaction:
