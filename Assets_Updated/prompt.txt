@@ -5,11 +5,11 @@ Assets provides the objects to be used in this interaction. Setup provides the e
 star in assets.svg is a controllable character that can be moved with the right, left, up, and down keys on the user's keyboard.
 
 Interaction:
-• The setting is setup.svg. space is a continuous downward scroll. The user can have the Star move downwards indefinitely.
-• The setting is astronomical space with stars scattered throughout the background. The space has a gradient. As the Star goes downwards, it gets darker. When the background gets the darkest value it can get, it remains at that value.
-• Objects are floating around in this space. These objects are the assets. Duplicate the Assignment II_Asteroid I.svg and Assignment II_Asteroid II.svg throughout the space.
-• Assignment II_Stardust.svg appears three times. The other assets only appear once per asset.
-• When the Star touches the Stardusts, the Stardust disappears. But right before it disappears, a text bubble shows up.   The text bubbles display the text below. The numbering indicates the duplications, and the style of the text bubble should be in the visual style of the assets and the background.
+• The setting is setup.svg. space is a continuous downward scroll. text-block and demo-star are hidden. The star's mobility is limited to the boundaries of phone-frame. alter phone-frame so that it is a continuous downward scroll, and the user can have the star move downwards indefinitely.
+• The setting is astronomical space with stars scattered throughout the background. The space has a gradient. As the star goes downwards, it gets darker. When the background gets the darkest value it can get, it remains at that value.
+• Objects are floating around in this space. These objects are all the objects in assets except star and star-pass. Duplicate asteroid-1 and asteroid-2 throughout the space.
+• stardust appears three times. The other objects only appear once per object.
+• When star touches the stardusts, the stardust disappears. But right before it disappears, a text bubble shows up.   The text bubbles display the text below. The numbering indicates the duplications, and the style of the text bubble should be the provided text-block.
 
 1.
 Coral feelings emerging from the surface
@@ -56,9 +56,9 @@ Uncertainty was the sole figure who remained
 Lyrics left unsaid
 Ethereal moments were but a dream
 
-• The same mechanic applies to the other assets, the Assignment II_Black Hole.svg, Assignment II_Dying Star.svg, and Assignment II_Planet I.svg. The prompts go as follows:
+• The same mechanic applies to the other objects, the black-hole, dying-star, and planet. The prompts go as follows:
 
-Black Hole:
+black-hole:
 Leaves of embers, descending into ashes
 As the waves shatter against the glass rafters
 
@@ -73,7 +73,7 @@ Declining into an eternal spiral
 Navigating through breathing pages with veiled eyes
 As the waves finally shattered the glass rafters
 
-Dying Star:
+dying-star:
 Steel vines dispersed in motion
 Crafting silently behind vacant conversations
 
@@ -88,7 +88,7 @@ Yet the microphone was placed in our grasp
 Childish automations in a clay jar
 Scheming behind vacant conversations
 
-Planet I:
+planet:
 Blank expressions across the canvas
 Minutia enduring severed harmonies
 
@@ -103,8 +103,8 @@ While the host is pulled away from the party
 Five crayons scratch the pure tile
 Insignificantly enduring severed harmonies
 
-• The last asset to appear is the last stardust. The user may travel farther and farther down past this stardust without ever touching it, and the path will continue downwards with no apparent end, but there will be no assets and it will be dark.
-• If the user touches the last stardust, the text bubble interaction occurs. Then after that, all assets that are still existent fade. The Star begins to glow brightly. After a pause, ephemeral text appears above the Star:
+• The last object to appear is the last stardust. The user may travel farther and farther down past this stardust without ever touching it, and the path will continue downwards with no apparent end, but there will be no objects and it will be dark.
+• If the user touches the last stardust, the text bubble interaction occurs. Then after that, all objects that are still existent fade. The star begins to glow brightly. After a pause, ephemeral text appears above the star:
 
 As night descends 
 Rest befalls your eyes
@@ -112,7 +112,7 @@ Rest befalls your eyes
 Sleep, my child
 To await tomorrow, whether sweet or dreadful
 
-After this, the text bubble fades away. There is a pause, and then the Star turns into Assignment II_Star_REST.svg. Then, it shines so brightly that the light encompasses the entire screen. Then the light fades away, and where the Star was, there are sparkles. The screen is overlaid with a text that says:
+After this, the text fades away. There is a pause, and then the star switches to star-pass. Then, it shines so brightly that the light encompasses the entire screen. Then the light fades away, and where the star was, there are sparkles fading upwards. The screen is overlaid with a text that says:
 
 PRESS ANYWHERE TO RESTART  
 
