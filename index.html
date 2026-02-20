@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>SEVEN MINUTES PAST</title>
+
+<style>
+html, body {
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  background: black;
+  font-family: serif;
+}
+
+#game {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+}
+
+#world {
+  position: absolute;
+  width: 100%;
+  height: 200000px;
+  left: 0;
+  top: 0;
+  transition: opacity 2s ease;
+}
+
+.background {
+  position: absolute;
+  width: 100%;
+  height: 200000px;
+  background: linear-gradient(to bottom, #1a1a40 0%, #000000 70%);
+}
+
+.object {
+  position: absolute;
+  pointer-events: none;
+  transition: opacity 2s ease;
+}
+
+#star {
+  position: absolute;
+  width: 60px;
+  height: 60px;
+  z-index: 10;
+  transition: filter 2s ease, opacity 2s ease;
+}
+
+#title {
+  position: absolute;
+  width: 100%;
+  text-align: center;
+  top: 20%;
+  color: white;
+  font-size: 2rem;
+  z-index: 20;
+  opacity: 1;
+  transition: opacity 1.5s ease;
+}
+
+#bubble {
+  position: absolute;
+  max-width: 500px;
+  padding: 20px;
+  background: rgba(0,0,0,0.8);
+  color: white;
+  border: 1px solid white;
+  display: none;
+  z-index: 30;
+}
+
+#endingOverlay {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background: white;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 3s ease;
+  z-index: 50;
+}
+
+#restartText {
+  position: absolute;
+  width: 100%;
+  text-align: center;
+  top: 50%;
+  transform: translateY(-50%);
+  color: white;
+  font-size: 2rem;
+  opacity: 0;
+  transition: opacity 3s ease;
+  z-index: 60;
+}
+</style>
+</head>
+
+<body>
+
+<div id="game">
+
+  <div id="world">
+    <div class="background"></div>
+  </div>
+
+  <img id="star" src="Assets_Updated/assets.svg#star" />
+
+  <div id="title">
+    <div>SEVEN MINUTES PAST</div>
+    <div style="margin-top:20px; font-size:1rem;">
+      press ⬅ ⬆ ⬇ ➡ to start
+    </div>
+  </div>
+
+  <div id="bubble"></div>
+  <div id="endingOverlay"></div>
+  <div id="restartText">PRESS ANYWHERE TO RESTART</div>
+
+</div>
+
+<script>
+const world = document.getElementById("world");
+const star = document.getElementById("star");
+const title = document.getElementById("title");
+const bubble = document.getElementById("bubble");
+const overlay = document.getElementById("endingOverlay");
+const restartText = document.getElementById("restartText");
+
+let starX = window.innerWidth/2 - 30;
+let starY = 200;
+let scrollY = 0;
+let started = false;
+let endingTriggered = false;
+
+const speed = 6;
+
+const texts = {
+  stardust1: `Coral feelings emerging from the surface
+With the falling sand persevering evermore...`,
+  stardust2: `Sunsets over the lake
+While the chiming grew louder...`,
+  stardust3: `Gazing into a fictional sea
+Ethereal moments did not last forever...`,
+  blackhole: `Leaves of embers, descending into ashes...`,
+  dyingstar: `Steel vines dispersed in motion...`,
+  planet: `Blank expressions across the canvas...`
+};
+
+const objects = [];
+
+function addObject(id, x, y, type) {
+  const img = document.createElement("img");
+  img.src = `Assets_Updated/assets.svg#${id}`;
+  img.className = "object";
+  img.style.left = x + "px";
+  img.style.top = y + "px";
+  img.dataset.type = type;
+  world.appendChild(img);
+  objects.push(img);
+}
+
+function randomX() {
+  return Math.random() * (window.innerWidth - 80);
+}
+
+// Duplicate asteroids
+for(let i=0;i<20;i++){
+  addObject("asteroid-1", randomX(), 800 + i*800, "asteroid");
+  addObject("asteroid-2", randomX(), 1200 + i*900, "asteroid");
+}
+
+// Stardust
+addObject("stardust", randomX(), 2000, "stardust1");
+addObject("stardust", randomX(), 5000, "stardust2");
+addObject("stardust", randomX(), 9000, "stardust3");
+
+// Other objects
+addObject("black-hole", randomX(), 4000, "blackhole");
+addObject("dying-star", randomX(), 7000, "dyingstar");
+addObject("planet", randomX(), 6000, "planet");
+
+function updateStar() {
+  star.style.left = starX + "px";
+  star.style.top = (starY - scrollY) + "px";
+}
+
+function showBubble(text) {
+  bubble.innerText = text;
+  bubble.style.display = "block";
+  bubble.style.left = (starX + 80) + "px";
+  bubble.style.top = (starY - scrollY - 20) + "px";
+  setTimeout(()=> bubble.style.display="none", 4000);
+}
+
+function checkCollision() {
+  const starRect = star.getBoundingClientRect();
+  objects.forEach(obj => {
+    if(obj.style.opacity === "0") return;
+    const rect = obj.getBoundingClientRect();
+    if(!(starRect.right < rect.left ||
+         starRect.left > rect.right ||
+         starRect.bottom < rect.top ||
+         starRect.top > rect.bottom)) {
+
+      if(obj.dataset.type.startsWith("stardust")){
+        showBubble(texts[obj.dataset.type]);
+        obj.style.opacity = 0;
+        if(obj.dataset.type === "stardust3"){
+          triggerEnding();
+        }
+      }
+      if(texts[obj.dataset.type]){
+        showBubble(texts[obj.dataset.type]);
+      }
+    }
+  });
+}
+
+function triggerEnding(){
+  endingTriggered = true;
+  objects.forEach(o=> o.style.opacity=0);
+  star.style.filter = "drop-shadow(0 0 40px white)";
+  setTimeout(()=>{
+    showBubble(`As night descends
+Rest befalls your eyes
+
+Sleep, my child
+To await tomorrow, whether sweet or dreadful`);
+  },2000);
+
+  setTimeout(()=>{
+    overlay.style.opacity = 1;
+  },6000);
+
+  setTimeout(()=>{
+    overlay.style.opacity = 0;
+    restartText.style.opacity = 1;
+    setTimeout(()=> restartEnabled=true,2000);
+  },10000);
+}
+
+let restartEnabled=false;
+
+window.addEventListener("keydown", e=>{
+  if(!started){
+    started=true;
+    title.style.opacity=0;
+  }
+  if(endingTriggered) return;
+
+  if(e.key==="ArrowLeft") starX -= speed;
+  if(e.key==="ArrowRight") starX += speed;
+  if(e.key==="ArrowUp") starY -= speed;
+  if(e.key==="ArrowDown"){
+    starY += speed;
+    scrollY += speed;
+    world.style.top = -scrollY + "px";
+
+    const darkness = Math.min(scrollY/8000, 1);
+    document.querySelector(".background").style.background =
+      `linear-gradient(to bottom, rgb(${26*(1-darkness)},${26*(1-darkness)},${64*(1-darkness)}) 0%, black 100%)`;
+  }
+
+  updateStar();
+  checkCollision();
+});
+
+window.addEventListener("click", ()=>{
+  if(restartEnabled){
+    location.reload();
+  }
+});
+
+updateStar();
+</script>
+
+</body>
+</html>
